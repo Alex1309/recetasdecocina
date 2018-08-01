@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-COMPATIBLE" content="IE=edge">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
+</head>
+
+<body>
+    <div class="container">
+        <div id="app" class="center-block">
+        <h2>
+          <center>Recetas de Cocina </center>
+          <img src="imagenReceta.png" class="center-block" style="width: 940px; height: 125px">
+       </h2>
+            <label for="male">Nombre Receta:</label>
+            <input type="text" size="30" v-model="nombreReceta" class="form-control">
+             <label for="male">Ingredientes:</label>
+             <textarea v-model="ingredienteReceta" class="form-control" rows="3"></textarea>
+             <label for="male">Descripción:</label>
+            <textarea v-model="descripcionReceta" class="form-control" rows="4"></textarea>
+
+            <button v-on:click="agregarReceta()" class="btn btn-block btn-success">
+              Agregar Receta
+            </button>
+       <table class="table">
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Ingredientes</th>
+            <th>Descripcion</th>
+            <th>Actualizar</th>
+            <th>Eliminar</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="receta in listaRecetas">
+
+            <td>{{ receta.Titulo }}</td>
+            <td>
+              <span v-if="formActualizar == true && idActualizar == receta">
+                <input v-model="ingredienteActualizar" type="text" class="form-control">
+              </span>
+              <span v-else>
+                {{ receta.Ingredientes }}
+              </span>
+            </td>
+
+            <td>
+              <span v-if="formActualizar ==true && idActualizar == receta">
+                <input v-model="descripcionActualizar" type="text"  class="form-control">
+              </span>
+              <span v-else>
+                {{ receta.Descripcion }}
+              </span>            
+            </td>
+
+            <th>
+                <!-- Boton guardar-->
+                <span v-if="formActualizar ==true && idActualizar == receta">
+                  <button @click="guardarActualizacion(receta.Titulo)" class="btn btn-success">Guardar</button>
+                </span>
+                <span v-else>
+                                <!-- Botón para mostrar el formulario de actualizar -->
+                  <button @click="verFormActualizar(receta,receta.Titulo,receta.Ingredientes,receta.Descripcion)" class="btn btn-warning">Actualizar</button>
+                </span>
+            </th>
+            <th>
+              <button v-on:click="eliminarReceta(receta,receta.Titulo)" class="btn btn-danger">
+                Eliminar
+              </button>
+            </th>
+          </tr>
+        </tbody>
+      </table>
+</div>
+
+    </div>
+  
+    <script src="https://unpkg.com/vue/dist/vue.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script>
+    var App = new Vue({
+      el: '#app',
+      data: {
+        nombreReceta: '',
+        ingredienteReceta: '',
+        descripcionReceta:'',
+        descripcionActualizar:'',
+        ingredienteActualizar:'',
+        idActualizar: -1,
+        formActualizar: false,
+        listaRecetas: [] 
+      },
+      
+      created: function(){
+        this.mostrarRecetas();
+      },
+
+      methods:{
+          mostrarRecetas: function(){
+            axios.get('http://recetasdecocina.herokuapp.com/recetas')
+            .then(response => (this.listaRecetas = response.data))
+            .catch(error => console.log(error))          
+          },
+          agregarReceta: function(){
+            axios.post('http://recetasdecocina.herokuapp.com/insert', {
+            Titulo: this.nombreReceta,
+            Ingredientes: this.ingredienteReceta,
+            Descripcion: this.descripcionReceta
+          })
+          .then(response => (this.mostrarRecetas()))
+          .catch(function (error) {
+            console.log(error);
+          })
+
+          },
+          verFormActualizar: function (listaRecetas,Titulo,Ingredientes,Descripcion) {    
+            this.idActualizar=listaRecetas,
+            this.ingredienteActualizar=listaRecetas.Ingredientes,
+            this.descripcionActualizar=listaRecetas.Descripcion,
+            this.formActualizar = true;
+            },
+            guardarActualizacion: function (Titulo) {
+              console.log(this.ingredienteActualizar)
+              axios.put('http://recetasdecocina.herokuapp.com/update', {
+                Titulo:Titulo,
+                Ingredientes: this.ingredienteActualizar,
+                Descripcion: this.descripcionActualizar
+                       
+              })
+              .then(response => (this.mostrarRecetas()))
+              .catch(function (error) {
+              console.log(error);
+             })
+              this.formActualizar = false;
+      
+            },
+          eliminarReceta: function(listaRecetas,id){
+            axios.delete('http://recetasdecocina.herokuapp.com/delete',{ data: { "Titulo": id } })
+            .then(response => (this.mostrarRecetas()));
+          }
+         }
+
+      }) 
+    </script>
+</body>
+
+</html>
