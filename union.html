@@ -58,7 +58,7 @@
               </span>            
             </td>
 
-            <th>
+            <td>
                 <!-- Boton guardar-->
                 <span v-if="formActualizar ==true && idActualizar == receta">
                   <button @click="guardarActualizacion(receta.Titulo)" class="btn btn-success">Guardar</button>
@@ -66,13 +66,17 @@
                 <span v-else>
                                 <!-- Botón para mostrar el formulario de actualizar -->
                   <button @click="verFormActualizar(receta,receta.Titulo,receta.Ingredientes,receta.Descripcion)" class="btn btn-warning">Actualizar</button>
+
                 </span>
-            </th>
-            <th>
-              <button v-on:click="eliminarReceta(receta,receta.Titulo)" class="btn btn-danger">
+            </td>
+            <td>
+              <span v-if="!(formActualizar ==true && idActualizar == receta)">
+                <button v-on:click="eliminarReceta(receta,receta.Titulo)" class="btn btn-danger">
                 Eliminar
               </button>
-            </th>
+              </span>
+              
+            </td>
           </tr>
         </tbody>
       </table>
@@ -150,3 +154,4 @@
 </body>
 
 </html>
+    
